@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ToDo List</title>
+  <style>
+     * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #7e7e7e;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #bbbaba;
+      margin-bottom: 30px;
+      font-size: 36px;
+    }
+
+    input[type="text"] {
+      padding: 10px 15px;
+      width: 250px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+      transition: 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 5px rgba(108, 99, 255, 0.4);
+    }
+.input-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Ensure on small screens they stack neatly */
+@media (max-width: 400px) {
+  .input-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .input-group input,
+  .input-group button {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+}
+
+    button {
+      padding: 10px 18px;
+      margin-left: 10px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #6c63ff;
+      color: white;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #5548d9;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+      width: 350px;
+    }
+
+    li {
+      padding: 15px 20px;
+      background: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+      word-break: break-word;
+    }
+
+    li:hover {
+      transform: translateY(-2px);
+    }
+
+    .actions button {
+      margin-left: 10px;
+      background-color: #ff7675;
+    }
+
+    .actions button:first-child {
+      background-color: #55efc4;
+    }
+
+    .actions button:hover {
+      opacity: 0.85;
+    }
+
+    .actions button:first-child:hover {
+      background-color: #00b894;
+    }
+
+    .actions button:last-child:hover {
+      background-color: #d63031;
+    }
+
+      /* ✅ Responsive Styles */
+       
+    @media (max-width: 600px) {
+      body {
+        padding: 40px 10px;
+      }
+
+      h1 {
+        font-size: 28px;
+        text-align: center;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+      }
+
+      ul {
+        width: 100%;
+      }
+
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 10px;
+        width: 100%;
+      }
+
+      .actions button {
+        flex: 1;
+        margin-left: 0;
+        margin-right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+  <div class="input-group">
+  <input type="text" id="inputfield" placeholder="Enter a new task...">
+  <button onclick="addTodo()">Add</button>
+  <button id="clr-btn" >clearAll</button>
+  
+</div>
+
+  <ul id="todo-list"></ul>
+
+  <script>
+    const inputfield = document.getElementById("inputfield");
+    const todoList = document.getElementById("todo-list");  
+    const clearAllBtn = document.getElementById("clr-btn");  
+
+    function addTodo() {
+      const text = inputfield.value;
+      if (text.trim() == "") {
+        alert("Enter the text");
+        return;
+      }
+
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.innerText = text;
+      todoList.appendChild(li);
+      li.appendChild(span);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      li.appendChild(actions);
+
+     // edit
+      const editbtn = document.createElement("button");
+      editbtn.innerText = "Edit";
+      actions.appendChild(editbtn);
+      editbtn.onclick = () => {
+        const newText = prompt("Edit Your Task", span.innerText);
+        if (newText.trim() !== "") {
+          span.innerText = newText.trim();
+        }
+      };
+     // delete 
+      const deletebtn = document.createElement("button");
+      deletebtn.innerText = "Delete";
+      actions.appendChild(deletebtn);
+      deletebtn.onclick = () => {
+        const confirmed = confirm("Are you sure you want to delete?");
+        if (confirmed) {
+          todoList.removeChild(li);
+        }
+      };
+   
+    // clear all button
+ clearAllBtn.onclick = () => {
+    
+  const confirmed = confirm("Are you sure you want to clear all todos?");
+  if (confirmed) {
+    localStorage.removeItem("todos");
+    todoList.innerHTML = ""; // Clear all <li> elements
+  }
+};
+
+  
+
+// Load todos from localStorage on page load
+  window.onload = function () {
+    const savedTodos = JSON.parse(localStorage.getItem("todos")) || [];
+    savedTodos.forEach(todo => renderTodo(todo));
+  };
+
+  function saveToLocalStorage() {
+    const todos = [];
+    document.querySelectorAll("#todo-list li span").forEach(span => {
+      todos.push(span.innerText);
+    });
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }
+
+
+   // after enter the text in input will be empty
+      inputfield.value = "";
+    }
+  </script>
+</body>
+</html>
